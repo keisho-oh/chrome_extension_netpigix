@@ -61,3 +61,11 @@
     2px -2px 1px black,
     -2px -2px 1px black;
 }
+
+.correct-word {
+    color: white;
+}
+
+.wrong-word {
+    color: red;
+}

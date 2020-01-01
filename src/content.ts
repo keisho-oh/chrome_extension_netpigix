@@ -182,7 +182,7 @@ function getCurrentSubtitle(): string[] {
   let words:string[] = [];
   if(element != null) {
     const text = (element.textContent || '').split('\n')[0] || '';
-    words = text.toLocaleLowerCase().replace(/[-,.?]/, "").split(" ").filter(x => x!="");
+    words = text.toLocaleLowerCase().split(" ").map(x => x.replace(/[-,.?]/, "")).filter(x => x!="");
   }
   return words;
 }
@@ -201,15 +201,20 @@ function updateUserInput(interimTranscript: string = ""): void {
   console.log(userInputWords);
 
   let num = 0;
+  let userInputWordsWithCorrectioin = '';
   for(let i=0; i<userInputWords.length; i++) {
     if(subtitleWords.includes(userInputWords[i])){
       num++;
+      userInputWordsWithCorrectioin += `<span class="correct-word"> ${userInputWords[i]} </span>`
+    } else {
+      userInputWordsWithCorrectioin += `<span class="wrong-word"> ${userInputWords[i]} </span>`
     }
   }
+  // const userTranscript = userInputWordsWithCorrectioin.join
 
   let textElement = document.createElement("div");
   textElement.classList.add(userInputText);
-  textElement.innerHTML = "Yours: " + finalTranscript + '<style="color:red;">' + interimTranscript + '</i>' + " [correct: " + num + "/ " + subtitleWords.length + "]";
+  textElement.innerHTML = "Yours: " + userInputWordsWithCorrectioin  + '<style="color:red;">' + interimTranscript + '</style>' + " [correct: " + num + "/ " + subtitleWords.length + "]";
   const element = document.getElementsByClassName("lln-subs-wrap")[0];
   element.insertBefore(textElement, element.children[0]);
 }
