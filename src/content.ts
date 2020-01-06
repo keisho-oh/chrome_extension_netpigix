@@ -8,7 +8,7 @@ let textsOnView: string[] = [];
 
 
 function main(): void {
-  console.log("Netpigix v2.0.0 Start!");
+  console.log("Netpigix v3.0.0 Start!");
   setTimeout(
     function () {
       if (document.getElementsByClassName('lln-bottom-panel').length >= 1) {

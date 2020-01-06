@@ -1,8 +1,8 @@
 {
-  "manifest_version": 2,
+  "manifest_version": 3,
   "name": "Netpigix",
   "description": "Extension for learning English using Netflix",
-  "version": "2.0",
+  "version": "3.0",
   "icons": {
     "16": "pigimaru.png",
     "128": "pigimaru.png"
