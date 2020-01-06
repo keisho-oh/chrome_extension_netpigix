@@ -2,6 +2,7 @@ let llnFlag = false;
 
 // id for the custom parent DOM element
 const customSubtitleId = "netpigix-subtitle-container";
+const userInputText = "user-input-text";
 // save the subtitles in this array
 let textsOnView: string[] = [];
 
@@ -150,6 +151,18 @@ function goBack(): void {
   document.getElementsByClassName("controls-full-hit-zone")[0].dispatchEvent(e);
 }
 
+function switchPlaying(): void {
+  let e = new KeyboardEvent("keydown", {
+    bubbles : true,
+    cancelable : true,
+    key : " ",
+    code: "Space",
+    // @ts-ignore
+    keyCode: 32,
+    shiftKey : false
+  });
+  document.getElementsByClassName("controls-full-hit-zone")[0].dispatchEvent(e);
+}
 
 // Speech Recognition Interface
 export interface IWindow extends Window {
@@ -158,32 +171,67 @@ export interface IWindow extends Window {
 const {webkitSpeechRecognition} : IWindow = (window as any);
 const recognition = new webkitSpeechRecognition();
 recognition.lang = 'en-US';
+recognition.continuous = true;
 recognition.interimResults = false;
 recognition.maxAlternatives = 1;
 
-recognition.start();
-recognition.stop();
+let finalTranscript = ''; // 確定した(黒の)認識結果
 
-recognition.onresult = (event: any): void => {
-  const text = event.results[0][0]["transcript"].toLocaleLowerCase();
-  console.log("From Speech Recognition: " + text);
-  if (text === "show me") {
-    toggleSubtitle();
-  } else if (text === "go back") {
-    goBack();
-  } else if (text.slice(0, 7) === "go back" && text.slice(-7) == "seconds") {
-    let time = parseInt(text.slice(8, -8));
-    while (time > 0) {
-      goBack();
-      time -= 10;
+function getCurrentSubtitle(): string[] {
+  const element = document.getElementsByClassName("lln-subs")[0]
+  let words:string[] = [];
+  if(element != null) {
+    const text = (element.textContent || '').split('\n')[0] || '';
+    words = text.toLocaleLowerCase().split(" ").map(x => x.replace(/[-,.?]/, "")).filter(x => x!="");
+  }
+  return words;
+}
+
+function updateUserInput(interimTranscript: string = ""): void {
+  const oldUserText = document.getElementsByClassName(userInputText)[0];
+  // delete old user input
+  if (oldUserText != null) {
+    oldUserText.remove();
+  }
+
+  const subtitleWords = getCurrentSubtitle();
+  const userInputWords = finalTranscript.toLowerCase().split(" ");
+
+  console.log(subtitleWords);
+  console.log(userInputWords);
+
+  let num = 0;
+  let userInputWordsWithCorrectioin = '';
+  for(let i=0; i<userInputWords.length; i++) {
+    if(subtitleWords.includes(userInputWords[i])){
+      num++;
+      userInputWordsWithCorrectioin += `<span class="correct-word"> ${userInputWords[i]} </span>`
+    } else {
+      userInputWordsWithCorrectioin += `<span class="wrong-word"> ${userInputWords[i]} </span>`
     }
   }
-};
+  // const userTranscript = userInputWordsWithCorrectioin.join
 
-recognition.onspeechend = (): void => {
-  recognition.stop();
-};
+  let textElement = document.createElement("div");
+  textElement.classList.add(userInputText);
+  textElement.innerHTML = "Yours: " + userInputWordsWithCorrectioin  + '<style="color:red;">' + interimTranscript + '</style>' + " [correct: " + num + "/ " + subtitleWords.length + "]";
+  const element = document.getElementsByClassName("lln-subs-wrap")[0];
+  element.insertBefore(textElement, element.children[0]);
+}
 
+recognition.onresult = (event: any): void => {
+  let interimTranscript = '';
+  for (let i = event.resultIndex; i < event.results.length; i++) {
+    let transcript = event.results[i][0].transcript;
+    if (event.results[i].isFinal) {
+      finalTranscript += transcript;
+    } else {
+      interimTranscript = transcript;
+    }
+  }
+  console.log(finalTranscript);
+  updateUserInput(interimTranscript);
+}
 
 // Keyboard Interface
 window.document.onkeydown = function(event){
@@ -191,6 +239,25 @@ window.document.onkeydown = function(event){
   if (llnFlag) {
     if (event.key === "Alt" || event.key === "x") {
       toggleSubtitleLln();
+    }
+    if(event.key === "w") {
+      updateUserInput("");
+    }
+    if(event.key === "v") {
+      finalTranscript = '';
+      updateUserInput();
+      console.log("Recognition started");
+      // switchPlaying();
+      recognition.start();
+    }
+    if(event.key === "c") {
+      console.log("Recognition finished");
+      recognition.stop();
+    }
+    if(event.key === "z") {
+      recognition.stop();
+      finalTranscript = '';
+      updateUserInput();
     }
   } else {
     if (event.key === "Alt") {

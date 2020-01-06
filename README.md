@@ -19,11 +19,10 @@ You'll have `dist` directory.
 * Make sure pressing `space` key stops/starts the video (default in Netflix).
 * Press `Alt` or `option` key to toggle the custom subtitle by NetPigix.
 * Press `←` (Left Arrow) key to go back 10 seconds (default in Netflix).
-* Speech Recognition starts every time you stop the video by pressing `space` key. If you say, within 2 seconds,;
-  * `show me`, the custom subtitle will be toggled (same as pressing `Alt` or `option`)
-  * `go back`, go back 10 seconds (same as pressing left arrow key)
-  * `go back x seconds`, go back `ceil(x/10)` seconds
-
+* Press `v` key to start speech recognition.
+* Press `c` key to finish speech recognition.
+* Press `x` key to clear recognized texts.
+* Press `w` key to update current subtitle to compare your input.
 ### If you use [LLN](https://chrome.google.com/webstore/detail/language-learning-with-ne/hoombieeljmmljlkjmnheibnpciblicm)
 By default, I bet you end up reading the subtitle without improving your listening skills at all.
 
